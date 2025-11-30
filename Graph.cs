@@ -85,6 +85,55 @@
 
             throw new Exception("Shortest path resulted in null");
         }
+
+        public int UnweightedDistanceCost(GraphNode startNode)
+        {
+            int total = 0;
+            CustomLinkedListNode currentNode = _nodes.Head;
+            while (currentNode is not null)
+            {
+                if ((GraphNode)currentNode.GraphNode == startNode)
+                {
+                    continue;
+                }
+                total += ShortestPath(startNode, (GraphNode)currentNode++.GraphNode, false).Count;
+                if (currentNode is null)
+                {
+                    break;
+                }
+            }
+            return total;
+        }
+
+        public int WeightedDistanceCost(GraphNode startNode)
+        {
+            int total = 0;
+            CustomLinkedListNode currentNode = _nodes.Head;
+            while (currentNode is not null)
+            {
+                if ((GraphNode)currentNode.GraphNode == startNode)
+                {
+                    continue;
+                }
+                var ps = ShortestPath(startNode,(GraphNode)currentNode++.GraphNode,true);
+                for (var index = 1; index < ps.Count; index++)
+                {
+                    var p = ps[index];
+                    total += (int)p.GraphNode.Chameleon()[2];
+                }
+
+                if (currentNode is null)
+                {
+                    break;
+                }
+            }
+            return total;
+        }
+
+        public int CalculateInfluenceScore(GraphNode node, bool isWeighted)
+        {
+            return (_nodes.Length-1)/(isWeighted ? WeightedDistanceCost(node) : UnweightedDistanceCost(node));
+        }
     }
 
     public interface IGraphItem

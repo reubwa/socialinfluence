@@ -34,7 +34,7 @@
                     col = val.Length;
                 }
 
-                data = new string[row - 1, col];  // to exclude the header
+                data = new string[row, col];  // to exclude the header
 
                 sr = new StreamReader(File.OpenRead(filename));
                 int i = 0;

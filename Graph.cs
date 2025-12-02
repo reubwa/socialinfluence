@@ -1,12 +1,24 @@
 ﻿namespace SocialInfluence
 {
-    internal class Graph
+    public class Graph
     {
         private CustomLinkedList _nodes = new();
         private CustomLinkedList _edges = new();
 
         public void AddNode(GraphNode item)
         {
+            CustomLinkedListNode currentNode = _nodes.Head;
+            while (currentNode is not null)
+            {
+                if (currentNode.GraphNode == item)
+                {
+                    return;
+                }
+                if (currentNode++ is null)
+                {
+                    break;
+                }
+            }
             CustomLinkedListNode newNode = new CustomLinkedListNode(item);
             _nodes.AddNode(newNode);
         }

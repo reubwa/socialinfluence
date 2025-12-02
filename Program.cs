@@ -6,7 +6,15 @@ namespace SocialInfluence
     {
         public static void Main(string[] args)
         {
-            //main entrypoint
+            while (true)
+            {
+                CsvFileAdaptor adaptor = new CsvFileAdaptor();
+                adaptor.ProcessAndDump();
+                Console.Write("Enter value to find social influence score for: ");
+                GraphNode infNode = new GraphNode(Console.ReadLine());
+                var score = GlobalProviders.gr.CalculateInfluenceScore(infNode,GlobalProviders.isWeighted);
+                Console.WriteLine($"Result is {score}");
+            }
         }
     }
 }

@@ -7,5 +7,6 @@ namespace SocialInfluence
     public class GlobalProviders
     {
         public static Graph gr = new();
+        public static bool isWeighted = false;
     }
 }

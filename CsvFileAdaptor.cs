@@ -10,8 +10,8 @@ namespace SocialInfluence
         {
             var res = ReadFile.ReadCsv();
             bool hasHeader = res[0,0]=="node1";
-            bool isWeighted = res.GetLength(1) > 1;
-            GlobalProviders.isWeighted = res.GetLength(1) > 1;
+            bool isWeighted = res.GetLength(1) > 2;
+            GlobalProviders.isWeighted = isWeighted;
             for (int row = 0; row < res.GetLength(0); row++)
             {
                 if (hasHeader && row==0)

@@ -55,9 +55,10 @@
             throw new Exception("Item not removed - probably invalid type!");
         }
 
+
         public List<CustomLinkedListNode> ShortestPath(GraphNode originatingNode, GraphNode destinationNode, bool isWeighted)
         {
-            CustomLinkedListNode currentNode = _nodes.Head;
+            CustomLinkedListNode currentNode = _nodes.GetNodeFromNode(originatingNode);
             List<CustomLinkedListNode> path = [];
             while (true)
             {
@@ -70,7 +71,7 @@
                 CustomLinkedListNode iteratorNode = _edges.Head;
                 while (iteratorNode is not null)
                 {
-                    if (iteratorNode.GraphNode.Chameleon()[0] == currentNode.GraphNode)
+                    if (iteratorNode.GraphNode.Chameleon()[0].ToString() == currentNode.GraphNode.ToString())
                     {
                         destinationCandidates.Add(iteratorNode);
                     }
@@ -100,6 +101,7 @@
 
         public int UnweightedDistanceCost(GraphNode startNode)
         {
+            GraphNode sp = startNode;
             int total = 0;
             CustomLinkedListNode currentNode = _nodes.Head;
             while (currentNode is not null)
@@ -108,7 +110,8 @@
                 {
                     continue;
                 }
-                total += ShortestPath(startNode, (GraphNode)currentNode++.GraphNode, false).Count;
+                total += ShortestPath(sp, (GraphNode)currentNode.GraphNode, false).Count;
+                sp = (GraphNode)currentNode++.GraphNode;
                 if (currentNode is null)
                 {
                     break;

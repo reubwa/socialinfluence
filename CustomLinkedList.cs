@@ -13,6 +13,24 @@ public class CustomLinkedList
 
     private static int GetLastIndex(List<CustomLinkedListNode> inp) => inp.IndexOf(inp.Last()) + 1;
 
+    public CustomLinkedListNode GetNodeFromNode(GraphNode gn)
+    {
+        CustomLinkedListNode currentNode = Head;
+
+        while (currentNode is not null)
+        {
+            if (currentNode.GraphNode.Chameleon()[0].ToString() == gn.Value.ToString())
+            {
+                return currentNode;
+            }
+            if (currentNode++ is null)
+            {
+                break;
+            }
+        }
+        throw new Exception("Node not found!");
+    }
+
     public void Shuffle()
     {
         List<CustomLinkedListNode> shuffleArray = [];

@@ -59,11 +59,7 @@ namespace InfluenceScore
         {
             var path = ShortestPathWeighted(start, destination);
             int cost = 0;
-            if (IsUnweighted)
-            {
-                cost = path.Count;
-            }
-            else
+            if (!IsUnweighted)
             {
                 for (var index = 0; index < path.Count; index++)
                 {
@@ -78,6 +74,7 @@ namespace InfluenceScore
                     }
                 }
             }
+
             return new KeyValuePair<int, List<string>>(cost, path);
         }
 

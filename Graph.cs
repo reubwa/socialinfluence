@@ -26,7 +26,7 @@ namespace InfluenceScore
             AdjacencyList[v].Add(new KeyValuePair<int, int>(u, weight));
         }
 
-        public List<string> ShortestPath(string start, string destination)
+        public List<string> ShortestPathWeighted(string start, string destination)
         {
             List<string> path = [];
             int s = Values.IndexOf(start);
@@ -43,9 +43,7 @@ namespace InfluenceScore
 
             while (true)
             {
-                currentNode = IsUnweighted
-                    ? AdjacencyList[currentNode[0].Key]
-                    : AdjacencyList[currentNode.OrderBy(node => node.Value).ToList()[0].Key];
+                currentNode = AdjacencyList[currentNode.OrderBy(node => node.Value).ToList()[0].Key];
                 foreach (var node in currentNode)
                 {
                     path.Add(Values[node.Key]);
@@ -59,7 +57,7 @@ namespace InfluenceScore
 
         public KeyValuePair<int, List<string>> CalculateCost(string start, string destination)
         {
-            var path = ShortestPath(start, destination);
+            var path = ShortestPathWeighted(start, destination);
             int cost = 0;
             if (IsUnweighted)
             {

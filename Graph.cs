@@ -78,6 +78,39 @@ namespace InfluenceScore
             return new KeyValuePair<int, List<string>>(cost, path);
         }
 
-        public int CalculateInfluenceScore(string start, string destination) => (Values.Count-1)/CalculateCost(start,destination).Key;
+        public int ShortestPathUnweighted(string start, string end)
+        {
+            Queue<string> queue = new();
+            HashSet<string> visited = [];
+            List<string> basis = [];
+
+            queue.Enqueue(start);
+            visited.Add(start);
+            basis.Add(start);
+
+            while (queue.Count > 0)
+            {
+                string currentNode = queue.Dequeue();
+                if (currentNode == end)
+                {
+                    return basis.Count;
+                }
+
+                foreach (var kvp in AdjacencyList[Values.IndexOf(currentNode)])
+                {
+                    if (visited.Add(Values[kvp.Key]))
+                    {
+                        basis.Add(Values[kvp.Key]);
+                        queue.Enqueue(Values[kvp.Key]);
+                    }
+                }
+            }
+
+            return -1;
+        }
+
+        public int CalculateInfluenceScoreWeighted(string start, string destination) => (Values.Count-1)/CalculateCost(start,destination).Key;
+
+        public int CalculateInfluenceScoreUnweighted(string start, string destination) => (Values.Count - 1) / ShortestPathUnweighted(start, destination);
     }
 }

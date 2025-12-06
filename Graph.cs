@@ -11,36 +11,19 @@ namespace InfluenceScore
         public void AddEdge(string start, string destination, int weight = -1)
         {
             IsUnweighted = weight == -1;
-            int startIndex = 0, destIndex = 0;
-            for (var index = 0; index < AdjacencyList.Count; index++)
+            int startIndex = 0;
+            if (AdjacencyList.Exists(kvp => kvp.Key == start))
             {
-                var item = AdjacencyList[index];
-                if (item.Key == start)
+                foreach (var kvp in AdjacencyList.Where(kvp => kvp.Key == start))
                 {
-                    startIndex = index;
-                    continue;
-                }
-
-                if (item.Key == destination)
-                {
-                    destIndex = index;
+                    kvp.Value.Add(new KeyValuePair<string, int>(destination,-1));
+                    return;
                 }
             }
 
-            if (startIndex == 0)
-            {
-                AdjacencyList.Add(new KeyValuePair<string, List<KeyValuePair<string, int>>>(start,[]));
-                startIndex = AdjacencyList.Count;
-            }
-
-            if (destIndex == 0)
-            {
-                AdjacencyList.Add(new KeyValuePair<string, List<KeyValuePair<string, int>>>(destination, []));
-                destIndex = AdjacencyList.Count;
-            }
-
-            AdjacencyList[startIndex].Value.Add(new KeyValuePair<string, int>(destination,weight));
-            AdjacencyList[destIndex].Value.Add(new KeyValuePair<string, int>(start,weight));
+            startIndex = AdjacencyList.Count;
+            AdjacencyList.Add(new KeyValuePair<string, List<KeyValuePair<string, int>>>(start, []));
+            AdjacencyList[startIndex].Value.Add(new KeyValuePair<string, int>(destination,-1));
         }
 
         public List<string> ShortestPathUnweighted(string start, string destination)
@@ -80,7 +63,7 @@ namespace InfluenceScore
                 current = parents[current];
             }
 
-            path.Reverse(); // Path is built backwards, so reverse it to get start -> end
+            path.Reverse();
             return path;
         }
 
@@ -133,13 +116,25 @@ namespace InfluenceScore
         public double CalculateInfluenceScoreWeighted(string start)
         {
             double s = ShortestPathWeighted(start).Sum();
-            return (AdjacencyList.Count - 1) / s;
+            return (SmartTotal(AdjacencyList) - 1) / s;
         }
 
         public double CalculateInfluenceScoreUnweighted(string start)
         {
             double cost = AdjacencyList.Sum(kvp => ShortestPathUnweighted(start, kvp.Key).Count);
-            return (AdjacencyList.Count - 1) / cost;
+            return (SmartTotal(AdjacencyList) - 1) / cost;
+        }
+
+        public static int SmartTotal(List<KeyValuePair<string, List<KeyValuePair<string, int>>>> kvp)
+        {
+            var l = kvp.DistinctBy(k => k.Key).ToList();
+            int total = l.Count;
+            foreach (var v in kvp.SelectMany(k => k.Value.Where(v => !l.Exists(m => m.Key == v.Key))))
+            {
+                total++;
+                l.Add(new KeyValuePair<string, List<KeyValuePair<string,int>>>(v.Key, []));
+            }
+            return total;
         }
     }
 }

@@ -45,28 +45,15 @@
 
                     for (int j = 0; j < val.Length; j++)
                     {
-                        if (i > 0) //exclude the heading
-                            data[i - 1, j] = val[j];
+                        if (j < col)
+                        {
+                            data[i, j] = val[j];
+                        }
                     }
                     i++;
                 }
-                return data;
             }
             return data;
-        }
-
-
-        public static void PrintArray(string[,] data)
-        {
-            for (int i = 0; i < data.GetLength(0); i++)
-            {
-                for (int j = 0; j < data.GetLength(1); j++)
-                {
-                    Console.Write(data[i, j]);
-                    Console.Write(" ");
-                }
-                Console.WriteLine();
-            }
         }
     }
 }

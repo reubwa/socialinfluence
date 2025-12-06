@@ -7,6 +7,11 @@ namespace InfluenceScore
         public void ProcessAndDump()
         {
             var res = ReadFile.ReadCsv();
+            if (res is null)
+            {
+                Console.WriteLine("Error! File either not found or unable to be read.");
+                return;
+            }
             bool hasHeader = res[0,0]=="node1";
             bool isWeighted = res.GetLength(1) > 2;
             GlobalProviders.gr.AdjacencyList.Capacity = res.GetLength(0);

@@ -109,8 +109,16 @@ namespace InfluenceScore
             return -1;
         }
 
-        public int CalculateInfluenceScoreWeighted(string start, string destination) => (Values.Count-1)/CalculateCost(start,destination).Key;
+        public int CalculateInfluenceScoreWeighted(string start)
+        {
+            int cost = Values.Sum(value => CalculateCost(start, value).Key);
+            return (Values.Count - 1) / cost;
+        }
 
-        public int CalculateInfluenceScoreUnweighted(string start, string destination) => (Values.Count - 1) / ShortestPathUnweighted(start, destination);
+        public int CalculateInfluenceScoreUnweighted(string start)
+        {
+            int cost = Values.Sum(value => ShortestPathUnweighted(start, value));
+            return (Values.Count - 1) / cost;
+        }
     }
 }

@@ -9,7 +9,7 @@ internal class Program
             adaptor.ProcessAndDump();
             Console.Write("Enter value to find social influence score for: ");
             string toFind = Console.ReadLine();
-            var score = GlobalProviders.gr.CalculateInfluenceScore(toFind, GlobalProviders.gr.Values.Last());
+            int score = GlobalProviders.gr.IsUnweighted ? GlobalProviders.gr.CalculateInfluenceScoreUnweighted(toFind) : GlobalProviders.gr.CalculateInfluenceScoreWeighted(toFind);
             Console.WriteLine($"Result is {score}");
         }
     }

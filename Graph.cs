@@ -6,126 +6,140 @@ namespace InfluenceScore
 {
     public class Graph
     {
-        public List<List<KeyValuePair<int, int>>> AdjacencyList { get; private set; } = [];
-        public List<string> Values { get; private set; } = [];
+        public List<KeyValuePair<string, List<KeyValuePair<string, int>>>> AdjacencyList { get; private set; } = [];
         public bool IsUnweighted { get; private set; } = true;
         public void AddEdge(string start, string destination, int weight = -1)
         {
-            Values.Add(start);
-            Values.Add(destination);
-            Values = Values.Distinct().ToList();
             IsUnweighted = weight == -1;
-            int u = Values.IndexOf(start);
-            int v = Values.IndexOf(destination);
-            AdjacencyList.Add([]);
-            if (AdjacencyList.Count == 1)
+            int startIndex = 0, destIndex = 0;
+            for (var index = 0; index < AdjacencyList.Count; index++)
             {
-                AdjacencyList.Add([]);
-            }
-            AdjacencyList[u].Add(new KeyValuePair<int, int>(v, weight));
-            AdjacencyList[v].Add(new KeyValuePair<int, int>(u, weight));
-        }
-
-        public List<string> ShortestPathWeighted(string start, string destination)
-        {
-            List<string> path = [];
-            int s = Values.IndexOf(start);
-            int d = Values.IndexOf(destination);
-            var currentNode = AdjacencyList[s];
-            foreach (var node in currentNode)
-            {
-                if (node.Key == d)
+                var item = AdjacencyList[index];
+                if (item.Key == start)
                 {
-                    path.Add(Values[node.Key]);
-                    return path;
+                    startIndex = index;
+                    continue;
+                }
+
+                if (item.Key == destination)
+                {
+                    destIndex = index;
                 }
             }
 
-            while (true)
+            if (startIndex == 0)
             {
-                currentNode = AdjacencyList[currentNode.OrderBy(node => node.Value).ToList()[0].Key];
-                foreach (var node in currentNode)
-                {
-                    path.Add(Values[node.Key]);
-                    if (node.Key == d)
-                    {
-                        return path;
-                    }
-                }
-            }
-        }
-
-        public KeyValuePair<int, List<string>> CalculateCost(string start, string destination)
-        {
-            var path = ShortestPathWeighted(start, destination);
-            int cost = 0;
-            if (!IsUnweighted)
-            {
-                for (var index = 0; index < path.Count; index++)
-                {
-                    var node = path[index];
-                    int ix = Values.IndexOf(node);
-                    var connections = AdjacencyList[ix];
-                    int ixn = 0;
-                    if (path.Count > 1)
-                    {
-                        ixn = Values.IndexOf(path[index + 1]);
-                    }
-                    else
-                    {
-                        cost += connections[0].Value;
-                        continue;
-                    }
-
-                    foreach (var connection in connections.Where(connection => connection.Key == ixn))
-                    {
-                        cost += connection.Value;
-                        break;
-                    }
-                }
+                AdjacencyList.Add(new KeyValuePair<string, List<KeyValuePair<string, int>>>(start,[]));
+                startIndex = AdjacencyList.Count;
             }
 
-            return new KeyValuePair<int, List<string>>(cost, path);
+            if (destIndex == 0)
+            {
+                AdjacencyList.Add(new KeyValuePair<string, List<KeyValuePair<string, int>>>(destination, []));
+                destIndex = AdjacencyList.Count;
+            }
+
+            AdjacencyList[startIndex].Value.Add(new KeyValuePair<string, int>(destination,weight));
+            AdjacencyList[destIndex].Value.Add(new KeyValuePair<string, int>(start,weight));
         }
 
-        public int ShortestPathUnweighted(string start, string end)
+        public List<string> ShortestPathUnweighted(string start, string destination)
         {
-            Queue<string> queue = new();
-            HashSet<string> visited = [];
-            List<string> basis = [];
-
+            var parents = new Dictionary<string, string>();
+            var distances = new Dictionary<string, int>();
+            var queue = new Queue<string>();
+            distances[start] = 0;
             queue.Enqueue(start);
-            visited.Add(start);
-            basis.Add(start);
-
+            parents[start] = null;
             while (queue.Count > 0)
             {
                 string currentNode = queue.Dequeue();
-                if (currentNode == end)
-                {
-                    return basis.Count;
-                }
+                if (currentNode == destination) break;
 
-                foreach (KeyValuePair<int, int> kvp in AdjacencyList[Values.IndexOf(currentNode)].Where(kvp => visited.Add(Values[kvp.Key])))
+                if (!AdjacencyList.Exists(kvp => kvp.Key == currentNode)) continue;
                 {
-                    basis.Add(Values[kvp.Key]);
-                    queue.Enqueue(Values[kvp.Key]);
+                    foreach (var neighbour in AdjacencyList[AdjacencyList.FindIndex(kvp => kvp.Key == currentNode)].Value.Select(ksi => ksi.Key).Where(neighbor => !distances.ContainsKey(neighbor)))
+                    {
+                        distances[neighbour] = distances[currentNode] + 1;
+                        parents[neighbour] = currentNode;
+                        queue.Enqueue(neighbour);
+                    }
                 }
             }
 
-            return -1;
+            if (!distances.ContainsKey(destination))
+            {
+                return []; // No path found
+            }
+
+            List<string> path = [];
+            string current = destination;
+            while (current != null)
+            {
+                path.Add(current);
+                current = parents[current];
+            }
+
+            path.Reverse(); // Path is built backwards, so reverse it to get start -> end
+            return path;
         }
 
-        public int CalculateInfluenceScoreWeighted(string start)
+        private static int CalculateMinimumDistance(int[] distances, bool[] shortestPathTreeSet)
         {
-            int cost = Values.Sum(value => CalculateCost(start, value).Key);
-            return (Values.Count - 1) / cost;
+            int min = int.MaxValue, minIndex = -1;
+
+            for (int v = 0; v < distances.Length; v++)
+            {
+                if (shortestPathTreeSet[v] || distances[v] > min) continue;
+                min = distances[v];
+                minIndex = v;
+            }
+
+            return minIndex;
         }
 
-        public int CalculateInfluenceScoreUnweighted(string start)
+        public int[] ShortestPathWeighted(string start)
         {
-            int cost = Values.Sum(value => ShortestPathUnweighted(start, value));
-            return (Values.Count - 1) / cost;
+            int source = AdjacencyList.FindIndex(kvp => kvp.Key==start);
+            int vertices = AdjacencyList.Count;
+            int[] distances = new int[vertices];
+            bool[] shortestPathTreeSet = new bool[vertices];
+            for (int i = 0; i < vertices; i++)
+            {
+                distances[i] = int.MaxValue;
+                shortestPathTreeSet[i] = false;
+            }
+
+            distances[source] = 0;
+
+            for (int count = 0; count < vertices - 1; count++)
+            {
+                int u = CalculateMinimumDistance(distances, shortestPathTreeSet);
+                shortestPathTreeSet[u] = true;
+
+                foreach (var (key, weight) in AdjacencyList[u].Value)
+                {
+                    var v = AdjacencyList.FindIndex(n => n.Key == key);
+                    if (!shortestPathTreeSet[v] && distances[u] != int.MaxValue && distances[u] + weight < distances[v])
+                    {
+                        distances[v] = distances[u] + weight;
+                    }
+                }
+            }
+
+            return distances;
+        }
+
+        public double CalculateInfluenceScoreWeighted(string start)
+        {
+            double s = ShortestPathWeighted(start).Sum();
+            return (AdjacencyList.Count - 1) / s;
+        }
+
+        public double CalculateInfluenceScoreUnweighted(string start)
+        {
+            double cost = AdjacencyList.Sum(kvp => ShortestPathUnweighted(start, kvp.Key).Count);
+            return (AdjacencyList.Count - 1) / cost;
         }
     }
 }

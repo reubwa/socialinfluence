@@ -19,6 +19,10 @@ namespace InfluenceScore
                 string firstNewNode = "", secondNewNode = "";
                 for (int col = 0; col < res.GetLength(1); col++)
                 {
+                    if (res[row, col] is null)
+                    {
+                        break;
+                    }
                     if (col == 0)
                     {
                         firstNewNode = res[row,col];

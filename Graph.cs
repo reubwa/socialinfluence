@@ -65,8 +65,18 @@ namespace InfluenceScore
                 {
                     var node = path[index];
                     int ix = Values.IndexOf(node);
-                    var ixn = Values.IndexOf(path[index + 1]);
                     var connections = AdjacencyList[ix];
+                    int ixn = 0;
+                    if (path.Count > 1)
+                    {
+                        ixn = Values.IndexOf(path[index + 1]);
+                    }
+                    else
+                    {
+                        cost += connections[0].Value;
+                        continue;
+                    }
+
                     foreach (var connection in connections.Where(connection => connection.Key == ixn))
                     {
                         cost += connection.Value;
@@ -96,13 +106,10 @@ namespace InfluenceScore
                     return basis.Count;
                 }
 
-                foreach (var kvp in AdjacencyList[Values.IndexOf(currentNode)])
+                foreach (KeyValuePair<int, int> kvp in AdjacencyList[Values.IndexOf(currentNode)].Where(kvp => visited.Add(Values[kvp.Key])))
                 {
-                    if (visited.Add(Values[kvp.Key]))
-                    {
-                        basis.Add(Values[kvp.Key]);
-                        queue.Enqueue(Values[kvp.Key]);
-                    }
+                    basis.Add(Values[kvp.Key]);
+                    queue.Enqueue(Values[kvp.Key]);
                 }
             }
 

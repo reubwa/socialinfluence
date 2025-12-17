@@ -8,6 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Update="euroroads.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="unweighted_network.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

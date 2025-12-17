@@ -5,6 +5,7 @@ internal class Program
     {
         while (true)
         {
+            GlobalProviders.gr = new Graph();
             CsvFileAdaptor adaptor = new CsvFileAdaptor();
             adaptor.ProcessAndDump();
             Console.Write("Enter value to find social influence score for: ");

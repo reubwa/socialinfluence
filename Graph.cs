@@ -29,21 +29,31 @@ namespace InfluenceScore
 
         public List<string> ShortestPathUnweighted(string start, string destination)
         {
+            // Stores which node led to current node
             var parents = new Dictionary<string, string>();
+            // Tracks number of edges from starting node to every other node
             var distances = new Dictionary<string, int>();
+            // Manages order of exploration - FIFO
             var queue = new Queue<string>();
+            // marks starting node with distance of 0 and adds it to queue
             distances[start] = 0;
             queue.Enqueue(start);
             parents[start] = null;
+            // Loop continues until queue is empty - layer by layer exploration
             while (queue.Count > 0)
             {
                 string currentNode = queue.Dequeue();
                 if (currentNode == destination) break;
-
+                //Check neighbours
                 if (!AdjacencyList.Exists(kvp => kvp.Key == currentNode)) continue;
                 {
                     foreach (var neighbour in AdjacencyList[AdjacencyList.FindIndex(kvp => kvp.Key == currentNode)].Value.Select(ksi => ksi.Key).Where(neighbor => !distances.ContainsKey(neighbor)))
                     {
+                        /*
+                         * If neighbour hasn't been visited, mark distance as currentNode's distance + 1
+                         * set currentNode as its parent
+                         * Add neighbour to the queue to be explored in the next layer
+                         */
                         distances[neighbour] = distances[currentNode] + 1;
                         parents[neighbour] = currentNode;
                         queue.Enqueue(neighbour);
@@ -92,6 +102,7 @@ namespace InfluenceScore
 
             int vertices = AdjacencyList.Count;
             int[] distances = new int[vertices];
+            //Tracks nodes that have been visited
             bool[] shortestPathTreeSet = new bool[vertices];
 
             for (int i = 0; i < vertices; i++)
@@ -104,14 +115,21 @@ namespace InfluenceScore
 
             distances[nodeToIndex[start]] = 0;
 
+            //Loop runs for each vertex in the graph
             for (int count = 0; count < vertices - 1; count++)
             {
+                //Find the node with the smallest current distance that has not yet been processed
                 int u = CalculateMinimumDistance(distances, shortestPathTreeSet);
-
+                //Something's gone wrong if either of these values are returned...
                 if (u == -1 || distances[u] == int.MaxValue) break;
-
+                //Mark node as finalised
                 shortestPathTreeSet[u] = true;
-
+                /*
+                 * Look at the node's neighbours
+                 * -> for each one, check if the path through the current node (to the respective neighbour)
+                 * is shorter than the current known distance to the neighbour
+                 * -> If a shorter path is found, update the distances array
+                 */
                 foreach (var (neighbourName, weight) in AdjacencyList[u].Value)
                 {
                     if (!nodeToIndex.TryGetValue(neighbourName, out int v)) continue;
